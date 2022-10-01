@@ -31,10 +31,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val fetchData = fetchViewModel.fetchData.collectAsState()
-            val listOne = fetchViewModel.listOne.collectAsState()
-            val listTwo = fetchViewModel.listTwo.collectAsState()
-            val listThree = fetchViewModel.listThree.collectAsState()
-            val listFour = fetchViewModel.listFour.collectAsState()
+            val fetchList = fetchViewModel.listMap.collectAsState()
             FetchApplicationTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -105,26 +102,14 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                             is NetworkResult.Success -> {
-                                CollapsableLazyColumn(
-                                    sections = listOf(
-                                        CollapsableSection(
-                                            title = "List 1",
-                                            rows = listOne.value
-                                        ),
-                                        CollapsableSection(
-                                            title = "List 2",
-                                            rows = listTwo.value
-                                        ),
-                                        CollapsableSection(
-                                            title = "List 3",
-                                            rows = listThree.value
-                                        ),
-                                        CollapsableSection(
-                                            title = "List 4",
-                                            rows = listFour.value
-                                        ),
-                                    )
-                                )
+                                val sections: MutableList<CollapsableSection> = mutableListOf()
+                                fetchList.value.forEach { list ->
+                                    sections.add(CollapsableSection(list.key.toString(), list.value))
+                                }
+                                sections.sortBy { section ->
+                                    section.title
+                                }
+                                CollapsableLazyColumn(sections = sections)
                             }
                         }
                     }
